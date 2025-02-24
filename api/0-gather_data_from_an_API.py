@@ -21,7 +21,9 @@ if __name__ == "__main__":
     base_url = "https://jsonplaceholder.typicode.com"
 
     # Fetch employee details
-    user_response = requests.get("{}/users/{}".format(base_url, employee_id))
+    user_url = "{}/users/{}".format(base_url, employee_id)
+    user_response = requests.get(user_url)
+
     if user_response.status_code != 200:
         print("Error: Employee ID not found")
         sys.exit(1)
@@ -30,7 +32,13 @@ if __name__ == "__main__":
     employee_name = user_data.get("name")
 
     # Fetch TODO list for the employee
-    todos_response = requests.get("{}/todos".format(base_url), params={"userId": employee_id})
+    tasks_url = "{}/todos".format(base_url)
+    todos_response = requests.get(tasks_url, params={"userId": employee_id})
+
+    if todos_response.status_code != 200:
+        print("Error: Failed to retrieve tasks")
+        sys.exit(1)
+
     todos = todos_response.json()
 
     # Filter completed tasks
@@ -40,6 +48,8 @@ if __name__ == "__main__":
     total_tasks = len(todos)
     completed_count = len(completed_tasks)
 
-    print("Employee {} is done with tasks({}/{}):".format(employee_name, completed_count, total_tasks))
+    print("Employee {} is done with tasks({}/{}):".format(
+        employee_name, completed_count, total_tasks))
+
     for task in completed_tasks:
         print("\t {}".format(task))
