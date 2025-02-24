@@ -1,34 +1,45 @@
 #!/usr/bin/python3
-"""Script to use a REST API for a given employee ID, returns
-information about his/her TODO list progress"""
+"""
+Gather data from an API and display TODO list progress for a given employee ID.
+"""
+
 import requests
 import sys
 
-
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print(f"UsageError: python3 {__file__} employee_id(int)")
+        print("Usage: python3 0-gather_data_from_an_API.py <employee_id>")
         sys.exit(1)
 
-    API_URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = sys.argv[1]
+    employee_id = sys.argv[1]
 
-    response = requests.get(
-        f"{API_URL}/users/{EMPLOYEE_ID}/todos",
-        params={"_expand": "user"}
-    )
-    data = response.json()
-
-    if not len(data):
-        print("RequestError:", 404)
+    # Validate that employee_id is an integer
+    if not employee_id.isdigit():
+        print("Error: Employee ID must be an integer")
         sys.exit(1)
 
-    employee_name = data[0]["user"]["name"]
-    total_tasks = len(data)
-    done_tasks = [task for task in data if task["completed"]]
-    total_done_tasks = len(done_tasks)
+    base_url = "https://jsonplaceholder.typicode.com"
 
-    print(f"Employee {employee_name} is done with tasks"
-          f"({total_done_tasks}/{total_tasks}):")
-    for task in done_tasks:
-        print(f"\t {task['title']}")
+    # Fetch employee details
+    user_response = requests.get("{}/users/{}".format(base_url, employee_id))
+    if user_response.status_code != 200:
+        print("Error: Employee ID not found")
+        sys.exit(1)
+
+    user_data = user_response.json()
+    employee_name = user_data.get("name")
+
+    # Fetch TODO list for the employee
+    todos_response = requests.get("{}/todos".format(base_url), params={"userId": employee_id})
+    todos = todos_response.json()
+
+    # Filter completed tasks
+    completed_tasks = [task["title"] for task in todos if task["completed"]]
+
+    # Display output
+    total_tasks = len(todos)
+    completed_count = len(completed_tasks)
+
+    print("Employee {} is done with tasks({}/{}):".format(employee_name, completed_count, total_tasks))
+    for task in completed_tasks:
+        print("\t {}".format(task))
