@@ -1,35 +1,61 @@
-
 #!/usr/bin/python3
-"""Script to use a REST API for a given employee ID, returns
-information about his/her TODO list progress and export in CSV"""
+"""
+Export employee TODO list data to a CSV file.
+"""
+
 import csv
 import requests
 import sys
 
-
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print(f"UsageError: python3 {__file__} employee_id(int)")
+        print("Usage: python3 1-export_to_CSV.py <employee_id>")
         sys.exit(1)
 
-    API_URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = sys.argv[1]
+    employee_id = sys.argv[1]
 
-    response = requests.get(
-        f"{API_URL}/users/{EMPLOYEE_ID}/todos",
-        params={"_expand": "user"}
-    )
-    data = response.json()
-
-    if not len(data):
-        print("RequestError:", 404)
+    # Validate that employee_id is an integer
+    if not employee_id.isdigit():
+        print("Error: Employee ID must be an integer")
         sys.exit(1)
 
-    username = data[0]["user"]["username"]
+    base_url = "https://jsonplaceholder.typicode.com"
 
-    with open(f"{EMPLOYEE_ID}.csv", "w", newline="") as file:
-        writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
-        for task in data:
-            writer.writerow(
-                [EMPLOYEE_ID, username, str(task["completed"]), task["title"]]
-            )
+    # Fetch employee details
+    user_url = "{}/users/{}".format(base_url, employee_id)
+    user_response = requests.get(user_url)
+
+    if user_response.status_code != 200:
+        print("Error: Employee ID not found")
+        sys.exit(1)
+
+    user_data = user_response.json()
+    username = user_data.get("username")
+
+    # Fetch TODO list for the employee
+    tasks_url = "{}/todos".format(base_url)
+    todos_response = requests.get(tasks_url, params={"userId": employee_id})
+
+    if todos_response.status_code != 200:
+        print("Error: Failed to retrieve tasks")
+        sys.exit(1)
+
+    todos = todos_response.json()
+
+    # Prepare CSV file name
+    file_name = "{}.csv".format(employee_id)
+
+    # Write data to CSV file
+    with open(file_name, mode="w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
+
+        # Write each task as a row in the CSV
+        for task in todos:
+            writer.writerow([
+                employee_id,
+                username,
+                task["completed"],
+                task["title"]
+            ])
+
+    print("Data exported to {}".format(file_name))
