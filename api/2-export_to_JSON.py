@@ -24,13 +24,14 @@ if __name__ == "__main__":
 
     # Check for HTTP errors
     if response.status_code != 200:
-        print("Error fetching data from API. Status code:", response.status_code)
+        print("Error fetching data from API. Status code: {}".format(
+            response.status_code))
         sys.exit(1)
 
     # Check if response contains any tasks
     data = response.json()
     if not data:
-        print("No tasks found for employee ID:", EMPLOYEE_ID)
+        print("No tasks found for employee ID: {}".format(EMPLOYEE_ID))
         sys.exit(1)
 
     # Build the user tasks dictionary
@@ -49,5 +50,4 @@ if __name__ == "__main__":
         json.dump(user_tasks, file)
 
     print("Tasks for employee ID {} have been successfully saved to {}.".format(
-        EMPLOYEE_ID, output_filename
-    ))
+        EMPLOYEE_ID, output_filename))
