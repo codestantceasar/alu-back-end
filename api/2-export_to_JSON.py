@@ -49,5 +49,5 @@ if __name__ == "__main__":
     with open(output_filename, "w") as file:
         json.dump(user_tasks, file)
 
-    print("Tasks for employee ID {} have been successfully saved to {}.".format(
+    print("Tasks for employee ID {} is successfully saved to {}.".format(
         EMPLOYEE_ID, output_filename))
