@@ -13,16 +13,29 @@ if __name__ == "__main__":
     API_URL = "https://jsonplaceholder.typicode.com"
     EMPLOYEE_ID = sys.argv[1]
 
+    # Checking if the employee ID is a valid integer
+    if not EMPLOYEE_ID.isdigit():
+        print("Invalid employee ID: {}. It must be an integer.".format(EMPLOYEE_ID))
+        sys.exit(1)
+
+    # Make the API request
     response = requests.get(
         "{}/users/{}/todos".format(API_URL, EMPLOYEE_ID),
         params={"_expand": "user"}
     )
-    data = response.json()
 
-    if not len(data):
-        print("RequestError:", 404)
+    # Check for HTTP errors
+    if response.status_code != 200:
+        print("Error fetching data from API. Status code:", response.status_code)
         sys.exit(1)
 
+    # Check if response contains any tasks
+    data = response.json()
+    if not data:
+        print("No tasks found for employee ID:", EMPLOYEE_ID)
+        sys.exit(1)
+
+    # Build the user tasks dictionary
     user_tasks = {EMPLOYEE_ID: []}
     for task in data:
         task_dict = {
@@ -32,5 +45,9 @@ if __name__ == "__main__":
         }
         user_tasks[EMPLOYEE_ID].append(task_dict)
 
-    with open("{}.json".format(EMPLOYEE_ID), "w") as file:
+    # Save data to a JSON file
+    output_filename = "{}.json".format(EMPLOYEE_ID)
+    with open(output_filename, "w") as file:
         json.dump(user_tasks, file)
+
+    print("Tasks for employee ID {} have been successfully saved to {}.".format(EMPLOYEE_ID, output_filename))
