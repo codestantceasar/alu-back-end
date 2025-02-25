@@ -1,38 +1,74 @@
-
 #!/usr/bin/python3
-"""Script to use a REST API for a given employee ID, returns
-information about his/her TODO list progress and export in JSON"""
+"""
+Export employee TODO list data to a JSON file.
+
+This script fetches and exports an employee's TODO list from the
+'jsonplaceholder.typicode.com' API based on the given employee ID
+to a JSON file. The file includes employee ID, username, task
+completion status, and task title in the required JSON format.
+
+Usage:
+    python3 2-export_to_JSON.py <employee_id>
+
+Dependencies:
+    - `requests`: To fetch data from the API.
+    - `json`: To write data to a JSON file.
+
+Errors:
+    - Invalid employee ID or missing tasks.
+"""
+
 import json
 import requests
 import sys
 
-
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print(f"UsageError: python3 {__file__} employee_id(int)")
+        print("Usage: python3 2-export_to_JSON.py <employee_id>")
         sys.exit(1)
 
-    API_URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = sys.argv[1]
+    employee_id = sys.argv[1]
 
-    response = requests.get(
-        f"{API_URL}/users/{EMPLOYEE_ID}/todos",
-        params={"_expand": "user"}
-    )
-    data = response.json()
-
-    if not len(data):
-        print("RequestError:", 404)
+    # Validate employee ID
+    if not employee_id.isdigit():
+        print("Error: Employee ID must be an integer")
         sys.exit(1)
 
-    user_tasks = {EMPLOYEE_ID: []}
-    for task in data:
-        task_dict = {
+    employee_id = int(employee_id)
+    base_url = "https://jsonplaceholder.typicode.com"
+
+    # Fetch employee details
+    user_url = "{}/users/{}".format(base_url, employee_id)
+    user_response = requests.get(user_url)
+    if user_response.status_code != 200:
+        print("Error: Employee ID not found")
+        sys.exit(1)
+
+    user_data = user_response.json()
+    username = user_data.get("username")
+
+    # Fetch TODO list
+    todos_url = "{}/todos?userId={}".format(base_url, employee_id)
+    todos_response = requests.get(todos_url)
+    if todos_response.status_code != 200:
+        print("Error: Failed to retrieve tasks")
+        sys.exit(1)
+
+    todos = todos_response.json()
+
+    # Prepare data for JSON export
+    tasks = []
+    for task in todos:
+        task_data = {
             "task": task["title"],
             "completed": task["completed"],
-            "username": task["user"]["username"]
+            "username": username
         }
-        user_tasks[EMPLOYEE_ID].append(task_dict)
+        tasks.append(task_data)
 
-    with open(f"{EMPLOYEE_ID}.json", "w") as file:
-        json.dump(user_tasks, file)
+    # Write data to JSON file
+    file_name = "{}.json".format(employee_id)
+    with open(file_name, mode="w", encoding="utf-8") as json_file:
+        json.dump({str(employee_id): tasks}, json_file)
+
+    print("Data exported successfully to {}".format(file_name))
