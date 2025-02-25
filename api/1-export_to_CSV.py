@@ -1,10 +1,10 @@
-#!/usr/bin/python3 
+#!/usr/bin/python3
 """
 Export employee TODO list data to a CSV file.
 
-This script fetches and exports an employee's TODO list from the 
-'jsonplaceholder.typicode.com' API based on the given employee ID 
-to a CSV file. The file includes employee ID, username, task 
+This script fetches and exports an employee's TODO list from the
+'jsonplaceholder.typicode.com' API based on the given employee ID
+to a CSV file. The file includes employee ID, username, task
 completion status, and task title.
 
 Usage:
@@ -61,6 +61,8 @@ if __name__ == "__main__":
     with open(file_name, mode="w", newline="", encoding="utf-8") as csv_file:
         writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
         for task in todos:
-            writer.writerow([employee_id, username, str(task["completed"]), task["title"]])
+            writer.writerow([
+                employee_id, username, str(task["completed"]), task["title"]
+            ])
 
     print("Data exported successfully to {}".format(file_name))
