@@ -19,10 +19,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # Make the API request
-    response = requests.get(
-        "{}/users/{}/todos".format(API_URL, EMPLOYEE_ID),
-        params={"_expand": "user"}
-    )
+    url = "{}/users/{}/todos".format(API_URL, EMPLOYEE_ID)
+    response = requests.get(url, params={"_expand": "user"})
 
     # Check for HTTP errors
     if response.status_code != 200:
@@ -50,4 +48,6 @@ if __name__ == "__main__":
     with open(output_filename, "w") as file:
         json.dump(user_tasks, file)
 
-    print("Tasks for employee ID {} have been successfully saved to {}.".format(EMPLOYEE_ID, output_filename))
+    print("Tasks for employee ID {} have been successfully saved to {}.".format(
+        EMPLOYEE_ID, output_filename
+    ))
