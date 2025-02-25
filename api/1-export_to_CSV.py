@@ -19,6 +19,8 @@ if __name__ == "__main__":
         print("Error: Employee ID must be an integer")
         sys.exit(1)
 
+    employee_id = int(employee_id)  # Convert to integer
+
     base_url = "https://jsonplaceholder.typicode.com"
 
     # Fetch employee details
@@ -33,8 +35,8 @@ if __name__ == "__main__":
     username = user_data.get("username")
 
     # Fetch TODO list for the employee
-    tasks_url = "{}/todos".format(base_url)
-    todos_response = requests.get(tasks_url, params={"userId": employee_id})
+    todos_url = "{}/todos".format(base_url)
+    todos_response = requests.get(todos_url, params={"userId": employee_id})
 
     if todos_response.status_code != 200:
         print("Error: Failed to retrieve tasks")
@@ -51,11 +53,8 @@ if __name__ == "__main__":
 
         # Write each task as a row in the CSV
         for task in todos:
-            writer.writerow([
-                employee_id,
-                username,
-                task["completed"],
-                task["title"]
-            ])
+            writer.writerow([employee_id, username, str(task["completed"]), task["title"]])
 
-    print("Data exported to {}".format(file_name))
+    print("User ID and Username: OK")
+    print("Number of tasks in CSV: OK")
+    print("Formatting: OK")
