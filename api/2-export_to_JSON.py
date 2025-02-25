@@ -22,6 +22,7 @@ import json
 import requests
 import sys
 
+
 def fetch_employee_data(employee_id):
     """
     Fetch employee details using the given employee_id.
@@ -100,7 +101,10 @@ def main():
     todos = fetch_todos(employee_id)
 
     # Prepare tasks for JSON export
-    tasks = [{"task": task["title"], "completed": task["completed"], "username": username} for task in todos]
+    tasks = [
+        {"task": task["title"], "completed": task["completed"], "username": username}
+        for task in todos
+    ]
 
     # Export data to JSON file
     export_to_json(employee_id, username, tasks)
