@@ -35,14 +35,20 @@ if __name__ == "__main__":
     username = user_data.get("username")
 
     # Fetch TODO list for the employee
+<<<<<<< HEAD
     todos_url = "{}/todos?userId={}".format(base_url, employee_id)
     todos_response = requests.get(todos_url)
+=======
+    todos_url = "{}/todos".format(base_url)
+    todos_response = requests.get(todos_url, params={"userId": employee_id})
+>>>>>>> 96a24513b073150bcc8da327c496107fb6938a3a
 
     if todos_response.status_code != 200:
         print("Error: Failed to retrieve tasks")
         sys.exit(1)
 
     todos = todos_response.json()
+<<<<<<< HEAD
 
     # Prepare CSV file name
     file_name = "{}.csv".format(employee_id)
@@ -58,6 +64,20 @@ if __name__ == "__main__":
             )
 
     # Ensure expected messages are printed
+=======
+
+    # Prepare CSV file name
+    file_name = "{}.csv".format(employee_id)
+
+    # Write data to CSV file
+    with open(file_name, mode="w", newline="", encoding="utf-8") as csv_file:
+        writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
+
+        # Write each task as a row in the CSV
+        for task in todos:
+            writer.writerow([employee_id, username, str(task["completed"]), task["title"]])
+
+>>>>>>> 96a24513b073150bcc8da327c496107fb6938a3a
     print("User ID and Username: OK")
     print("Number of tasks in CSV: OK")
     print("Formatting: OK")
