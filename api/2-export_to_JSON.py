@@ -22,7 +22,66 @@ import json
 import requests
 import sys
 
-if __name__ == "__main__":
+def fetch_employee_data(employee_id):
+    """
+    Fetch employee details using the given employee_id.
+
+    Args:
+        employee_id (int): The employee ID to fetch details for.
+
+    Returns:
+        str: The username of the employee.
+    """
+    base_url = "https://jsonplaceholder.typicode.com"
+    user_url = f"{base_url}/users/{employee_id}"
+
+    response = requests.get(user_url)
+    if response.status_code != 200:
+        print("Error: Employee ID not found.")
+        sys.exit(1)
+
+    user_data = response.json()
+    return user_data.get("username")
+
+
+def fetch_todos(employee_id):
+    """
+    Fetch the TODO list for the given employee ID.
+
+    Args:
+        employee_id (int): The employee ID to fetch tasks for.
+
+    Returns:
+        list: A list of tasks (dicts) for the employee.
+    """
+    base_url = "https://jsonplaceholder.typicode.com"
+    todos_url = f"{base_url}/todos?userId={employee_id}"
+
+    response = requests.get(todos_url)
+    if response.status_code != 200:
+        print("Error: Failed to retrieve tasks.")
+        sys.exit(1)
+
+    return response.json()
+
+
+def export_to_json(employee_id, username, tasks):
+    """
+    Export the employee TODO list to a JSON file.
+
+    Args:
+        employee_id (int): The employee ID.
+        username (str): The username of the employee.
+        tasks (list): A list of tasks (dicts).
+    """
+    file_name = f"{employee_id}.json"
+    with open(file_name, mode="w", encoding="utf-8") as json_file:
+        json.dump({str(employee_id): tasks}, json_file, ensure_ascii=False, indent=4)
+
+    print(f"Data exported successfully to {file_name}")
+
+
+def main():
     if len(sys.argv) != 2:
         print("Usage: python3 2-export_to_JSON.py <employee_id>")
         sys.exit(1)
@@ -31,44 +90,21 @@ if __name__ == "__main__":
 
     # Validate employee ID
     if not employee_id.isdigit():
-        print("Error: Employee ID must be an integer")
+        print("Error: Employee ID must be an integer.")
         sys.exit(1)
 
     employee_id = int(employee_id)
-    base_url = "https://jsonplaceholder.typicode.com"
 
-    # Fetch employee details
-    user_url = "{}/users/{}".format(base_url, employee_id)
-    user_response = requests.get(user_url)
-    if user_response.status_code != 200:
-        print("Error: Employee ID not found")
-        sys.exit(1)
+    # Fetch employee data and tasks
+    username = fetch_employee_data(employee_id)
+    todos = fetch_todos(employee_id)
 
-    user_data = user_response.json()
-    username = user_data.get("username")
+    # Prepare tasks for JSON export
+    tasks = [{"task": task["title"], "completed": task["completed"], "username": username} for task in todos]
 
-    # Fetch TODO list
-    todos_url = "{}/todos?userId={}".format(base_url, employee_id)
-    todos_response = requests.get(todos_url)
-    if todos_response.status_code != 200:
-        print("Error: Failed to retrieve tasks")
-        sys.exit(1)
+    # Export data to JSON file
+    export_to_json(employee_id, username, tasks)
 
-    todos = todos_response.json()
 
-    # Prepare data for JSON export
-    tasks = []
-    for task in todos:
-        task_data = {
-            "task": task["title"],
-            "completed": task["completed"],
-            "username": username
-        }
-        tasks.append(task_data)
-
-    # Write data to JSON file
-    file_name = "{}.json".format(employee_id)
-    with open(file_name, mode="w", encoding="utf-8") as json_file:
-        json.dump({str(employee_id): tasks}, json_file)
-
-    print("Data exported successfully to {}".format(file_name))
+if __name__ == "__main__":
+    main()
