@@ -5,9 +5,12 @@ import json
 import requests
 import sys
 
+
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("UsageError: python3 {} employee_id(int)".format(__file__))
+        print(
+            "UsageError: python3 {} employee_id(int)".format(__file__)
+        )
         sys.exit(1)
 
     API_URL = "https://jsonplaceholder.typicode.com"
@@ -15,7 +18,10 @@ if __name__ == "__main__":
 
     # Checking if the employee ID is a valid integer
     if not EMPLOYEE_ID.isdigit():
-        print("Invalid employee ID: {}. It must be an integer.".format(EMPLOYEE_ID))
+        print(
+            "Invalid employee ID: {}. It must be an integer."
+            .format(EMPLOYEE_ID)
+        )
         sys.exit(1)
 
     # Make the API request
@@ -24,8 +30,10 @@ if __name__ == "__main__":
 
     # Check for HTTP errors
     if response.status_code != 200:
-        print("Error fetching data from API. Status code: {}".format(
-            response.status_code))
+        print(
+            "Error fetching data from API. Status code: {}"
+            .format(response.status_code)
+        )
         sys.exit(1)
 
     # Check if response contains any tasks
@@ -49,5 +57,7 @@ if __name__ == "__main__":
     with open(output_filename, "w") as file:
         json.dump(user_tasks, file)
 
-    print("Tasks for employee ID {} is successfully saved to {}.".format(
-        EMPLOYEE_ID, output_filename))
+    print(
+        "Tasks for employee ID {} have been successfully saved to {}."
+        .format(EMPLOYEE_ID, output_filename)
+    )
